@@ -1,29 +1,22 @@
 use tonic::transport::Server;
 
 use proto::{
-    gateway_server::{Gateway, GatewayServer},
+    messenger_server::{Messenger, MessengerServer},
     SendMessageResponse,
 };
 
 mod proto {
-    tonic::include_proto!("gateway");
+    tonic::include_proto!("messenger");
 
     pub(crate) const FILE_DESCRIPTOR_SET: &[u8] =
-        tonic::include_file_descriptor_set!("gateway_descriptor");
+        tonic::include_file_descriptor_set!("messenger_descriptor");
 }
 
 #[derive(Debug, Default)]
-struct GatewayService {}
+struct MessengerService {}
 
 #[tonic::async_trait]
-impl Gateway for GatewayService {
-    async fn authenticate_user(
-        &self,
-        request: tonic::Request<proto::UserCredentials>,
-    ) -> std::result::Result<tonic::Response<proto::AuthResponse>, tonic::Status> {
-        todo!()
-    }
-
+impl Messenger for MessengerService {
     async fn send_message(
         &self,
         request: tonic::Request<proto::SendMessageRequest>,
@@ -49,14 +42,14 @@ impl Gateway for GatewayService {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "[::1]:50051".parse()?;
 
-    let gateway = GatewayService::default();
+    let messenger = MessengerService::default();
 
     let service = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
         .build_v1()?;
 
     Server::builder()
-        .add_service(GatewayServer::new(gateway))
+        .add_service(MessengerServer::new(messenger))
         .add_service(service)
         .serve(addr)
         .await?;

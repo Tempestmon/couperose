@@ -17,6 +17,3 @@ tonic-build = "0.12.3"
 name = "server"
 path = "src/main.rs"
 
-[[bin]]
-name = "client"
-path = "src/client.rs"

@@ -63,7 +63,7 @@ package "Frontend" {
 }
 
 package "Backend" {
-  component "gRPC API Gateway" as Gateway
+  component "API Gateway" as Gateway
   component "Messaging Service" as Messaging
   component "User Management Service" as UserService
   component "Observability Service" as Observability
@@ -77,7 +77,7 @@ package "Data Storage" {
   storage "S3-Compatible (File Storage)" as S3
 }
 
-Client --> Gateway : gRPC
+Client --> Gateway : HTTP
 Gateway --> Messaging : gRPC
 Gateway --> UserService : gRPC
 Messaging --> Cassandra : Store Chat History

@@ -1,21 +1,12 @@
 syntax = "proto3";
 
-package gateway;
+package messenger;
 
-service Gateway {
-    rpc AuthenticateUser(UserCredentials) returns (AuthResponse);
+service Messenger {
     rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
     rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
 }
 
-message UserCredentials {
-    string username = 1;
-    string password = 2;
-}
-
-message AuthResponse {
-    string token = 1;
-}
 
 message SendMessageRequest {
     string sender = 1;
