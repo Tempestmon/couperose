@@ -1,0 +1,22 @@
+[package]
+name = "gateway"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+prost = "0.13.4"
+tokio = { version = "1.42.0", features = ["full"] }
+tonic = "0.12.3"
+tonic-reflection = "0.12.3"
+
+
+[build-dependencies]
+tonic-build = "0.12.3"
+
+[[bin]]
+name = "server"
+path = "src/main.rs"
+
+[[bin]]
+name = "client"
+path = "src/client.rs"
