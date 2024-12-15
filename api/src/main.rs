@@ -1,16 +1,22 @@
-use actix_web::web::Json;
+use actix_web::web::{self, Data, Json};
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use messenger::messenger_client::MessengerClient;
 use models::Message;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use tonic::transport::Channel;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
+mod models;
 pub mod messenger {
     tonic::include_proto!("messenger");
 }
 
-mod models;
+#[derive(Clone)]
+struct AppState {
+    grpc_clients: Arc<Mutex<Vec<MessengerClient<Channel>>>>,
+}
 
 async fn create_grpc_client() -> MessengerClient<Channel> {
     MessengerClient::connect("http://[::1]:50051") // TODO:
@@ -18,7 +24,30 @@ async fn create_grpc_client() -> MessengerClient<Channel> {
         // в
         // энвы
         .await
-        .unwrap()
+        .expect("Faield to create gRPC client")
+}
+
+async fn initialize_grpc_pool(pool_size: usize) -> Arc<Mutex<Vec<MessengerClient<Channel>>>> {
+    let mut pool = Vec::with_capacity(pool_size);
+    for _ in 0..pool_size {
+        pool.push(create_grpc_client().await);
+    }
+    Arc::new(Mutex::new(pool))
+}
+
+async fn get_grpc_client_from_pool(
+    pool: Arc<Mutex<Vec<MessengerClient<Channel>>>>,
+) -> Option<MessengerClient<Channel>> {
+    let mut pool = pool.lock().await;
+    pool.pop() // Take a client from the pool
+}
+
+async fn return_grpc_client_to_pool(
+    pool: Arc<Mutex<Vec<MessengerClient<Channel>>>>,
+    client: MessengerClient<Channel>,
+) {
+    let mut pool = pool.lock().await;
+    pool.push(client);
 }
 
 impl From<models::Message> for messenger::SendMessageRequest {
@@ -41,16 +70,25 @@ impl From<models::Message> for messenger::SendMessageRequest {
     )
 )]
 #[post("/message")]
-async fn send_message(message: Json<Message>) -> impl Responder {
+async fn send_message(state: Data<AppState>, message: Json<Message>) -> impl Responder {
     println!("Got message");
-    let mut client = create_grpc_client().await; //TODO: Сделать пул
-                                                 //соединений
+
+    let client = get_grpc_client_from_pool(state.grpc_clients.clone()).await;
+    let mut client = match client {
+        Some(client) => client,
+        None => return HttpResponse::InternalServerError().body("No available gRPC clients"),
+    };
+
     let grpc_request =
         tonic::Request::new(messenger::SendMessageRequest::from(message.into_inner()));
-    match client.send_message(grpc_request).await {
-        // TODO: Нормальная обработка
-        Ok(response) => HttpResponse::Ok(),
-        Err(e) => HttpResponse::InternalServerError(),
+
+    let response = client.send_message(grpc_request).await;
+
+    return_grpc_client_to_pool(state.grpc_clients.clone(), client).await;
+
+    match response {
+        Ok(_) => HttpResponse::Ok().body("Message sent successfully"),
+        Err(e) => HttpResponse::InternalServerError().body(format!("gRPC error: {}", e)),
     }
 }
 
@@ -79,8 +117,13 @@ struct ApiDoc;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let openapi = ApiDoc::openapi();
+    let grpc_clients = initialize_grpc_pool(5).await;
+    let app_state = AppState {
+        grpc_clients: grpc_clients.clone(),
+    };
     HttpServer::new(move || {
         App::new()
+            .app_data(web::Data::new(app_state.clone()))
             .service(send_message)
             .service(get_messages)
             .service(
