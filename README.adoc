@@ -92,7 +92,7 @@ Observability --> Traces : Distributed Tracing
 === Components
 
 1. **Frontend**:
-   - A thin client (e.g., web or mobile app) communicates with the backend via **gRPC**.
+   - A thin client (e.g., web or mobile app) communicates with the backend via **HTTP**.
    - Supports features like authentication, sending/receiving messages, and real-time updates.
 2. **gRPC API Gateway**:
    - Serves as the single entry point for all client requests.
