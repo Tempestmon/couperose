@@ -3,7 +3,7 @@ use utoipa::ToSchema;
 
 #[derive(Deserialize, Serialize, ToSchema)]
 pub struct Message {
-    sender: String,
-    recepient: String,
-    content: String,
+    pub sender: String,
+    pub recipient: String,
+    pub content: String,
 }

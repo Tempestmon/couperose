@@ -1,10 +1,35 @@
 use actix_web::web::Json;
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
+use messenger::messenger_client::MessengerClient;
 use models::Message;
+use tonic::transport::Channel;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
+pub mod messenger {
+    tonic::include_proto!("messenger");
+}
+
 mod models;
+
+async fn create_grpc_client() -> MessengerClient<Channel> {
+    MessengerClient::connect("http://[::1]:50051") // TODO:
+        // вынести
+        // в
+        // энвы
+        .await
+        .unwrap()
+}
+
+impl From<models::Message> for messenger::SendMessageRequest {
+    fn from(message: models::Message) -> Self {
+        Self {
+            sender: message.sender,
+            recipient: message.recipient,
+            content: message.content,
+        }
+    }
+}
 
 #[utoipa::path(
     post,
@@ -18,7 +43,15 @@ mod models;
 #[post("/message")]
 async fn send_message(message: Json<Message>) -> impl Responder {
     println!("Got message");
-    HttpResponse::Ok().json(message)
+    let mut client = create_grpc_client().await; //TODO: Сделать пул
+                                                 //соединений
+    let grpc_request =
+        tonic::Request::new(messenger::SendMessageRequest::from(message.into_inner()));
+    match client.send_message(grpc_request).await {
+        // TODO: Нормальная обработка
+        Ok(response) => HttpResponse::Ok(),
+        Err(e) => HttpResponse::InternalServerError(),
+    }
 }
 
 #[utoipa::path(
