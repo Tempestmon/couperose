@@ -1,3 +1,4 @@
+use actix_cors::Cors;
 use actix_web::web::{self, Data, Json};
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use messenger::messenger_client::MessengerClient;
@@ -123,6 +124,12 @@ async fn main() -> std::io::Result<()> {
     };
     HttpServer::new(move || {
         App::new()
+            .wrap(
+                Cors::default()
+                    .allow_any_origin() // Разрешает запросы с любых источников
+                    .allow_any_method() // Разрешает любые методы (GET, POST и т.д.)
+                    .allow_any_header(), // Разрешает любые заголовки
+            )
             .app_data(web::Data::new(app_state.clone()))
             .service(send_message)
             .service(get_messages)
