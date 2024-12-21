@@ -7,9 +7,6 @@ use proto::{
 
 mod proto {
     tonic::include_proto!("messenger");
-
-    pub(crate) const FILE_DESCRIPTOR_SET: &[u8] =
-        tonic::include_file_descriptor_set!("messenger_descriptor");
 }
 
 #[derive(Debug, Default)]
@@ -32,7 +29,7 @@ impl Messenger for MessengerService {
 
     async fn get_messages(
         &self,
-        request: tonic::Request<proto::GetMessagesRequest>,
+        _request: tonic::Request<proto::GetMessagesRequest>,
     ) -> std::result::Result<tonic::Response<proto::GetMessagesResponse>, tonic::Status> {
         todo!()
     }
@@ -45,7 +42,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let messenger = MessengerService::default();
 
     let service = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(proto::FILE_DESCRIPTOR_SET)
         .build_v1()?;
 
     Server::builder()
