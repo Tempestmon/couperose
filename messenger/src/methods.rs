@@ -25,6 +25,16 @@ impl Message {
     }
 }
 
+impl From<Message> for crate::proto::Message {
+    fn from(msg: Message) -> Self {
+        crate::proto::Message {
+            sender: msg.sender,
+            content: msg.content,
+            timestamp: msg.timestamp,
+        }
+    }
+}
+
 #[tonic::async_trait]
 impl Messenger for MessengerService {
     async fn send_message(
@@ -53,8 +63,6 @@ impl Messenger for MessengerService {
         } else {
             serde_json::from_str(&data).expect("Couldn't parse from string")
         };
-        // let mut messages: Vec<Message> =
-        //     serde_json::from_str(&data).expect("Couldn't parse from string");
         let message = Message::new(input.sender.clone(), input.content.clone());
         messages.push(message);
         serde_json::to_writer_pretty(&mut file, &messages)
@@ -67,6 +75,20 @@ impl Messenger for MessengerService {
         &self,
         _request: tonic::Request<GetMessagesRequest>,
     ) -> std::result::Result<tonic::Response<GetMessagesResponse>, tonic::Status> {
-        todo!()
+        let path = "messages.json";
+        let data = fs::read_to_string(path)
+            .await
+            .expect("Couldn't read data to string");
+        let messages: Vec<Message> = if data.trim().is_empty() {
+            Vec::new()
+        } else {
+            serde_json::from_str(&data).expect("Couldn't parse from string")
+        };
+
+        let messages: Vec<crate::proto::Message> =
+            messages.into_iter().map(|msg| msg.into()).collect();
+
+        let response = GetMessagesResponse { messages };
+        Ok(tonic::Response::new(response))
     }
 }
