@@ -2,7 +2,7 @@ use actix_cors::Cors;
 use actix_web::web::{self, Data, Json};
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use messenger::messenger_client::MessengerClient;
-use models::Message;
+use models::{GetMessage, SendMessage};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tonic::transport::Channel;
@@ -27,7 +27,26 @@ async fn create_grpc_client() -> MessengerClient<Channel> {
         .await
         .expect("Faield to create gRPC client")
 }
-
+// Got request to get messages
+// Response {
+//     metadata: MetadataMap {
+//         headers: {
+//             "content-type": "application/grpc",
+//             "date": "Mon, 23 Dec 2024 13:40:04 GMT",
+//             "grpc-status": "0",
+//         },
+//     },
+//     message: GetMessagesResponse {
+//         messages: [
+//             Message {
+//                 sender: "sdaf",
+//                 content: "sadf",
+//                 timestamp: 0,
+//             },
+//         ],
+//     },
+//     extensions: Extensions,
+// }
 async fn initialize_grpc_pool(pool_size: usize) -> Arc<Mutex<Vec<MessengerClient<Channel>>>> {
     let mut pool = Vec::with_capacity(pool_size);
     for _ in 0..pool_size {
@@ -51,8 +70,8 @@ async fn return_grpc_client_to_pool(
     pool.push(client);
 }
 
-impl From<models::Message> for messenger::SendMessageRequest {
-    fn from(message: models::Message) -> Self {
+impl From<models::SendMessage> for messenger::SendMessageRequest {
+    fn from(message: models::SendMessage) -> Self {
         Self {
             sender: message.sender,
             recipient: message.recipient,
@@ -61,17 +80,27 @@ impl From<models::Message> for messenger::SendMessageRequest {
     }
 }
 
+impl From<messenger::Message> for models::GetMessage {
+    fn from(message: messenger::Message) -> Self {
+        Self {
+            sender: message.sender,
+            content: message.content,
+            timestamp: message.timestamp,
+        }
+    }
+}
+
 #[utoipa::path(
     post,
     path = "/message",
-    request_body = Message,
+    request_body = SendMessage,
     responses(
-        (status = 200, description = "Message sent successfully", body = Message),
+        (status = 200, description = "Message sent successfully", body = SendMessage),
         (status = 400, description = "Invalid payload"),
     )
 )]
 #[post("/message")]
-async fn send_message(state: Data<AppState>, message: Json<Message>) -> impl Responder {
+async fn send_message(state: Data<AppState>, message: Json<SendMessage>) -> impl Responder {
     println!("Got message");
 
     let client = get_grpc_client_from_pool(state.grpc_clients.clone()).await;
@@ -102,13 +131,24 @@ async fn send_message(state: Data<AppState>, message: Json<Message>) -> impl Res
 )]
 #[get("/messages")]
 async fn get_messages() -> impl Responder {
-    HttpResponse::Ok()
+    println!("Got request to get messages");
+    let mut grpc_client = create_grpc_client().await;
+    let grpc_request = tonic::Request::new(messenger::GetMessagesRequest::default());
+    let response = grpc_client.get_messages(grpc_request).await.unwrap();
+    println!("{:#?}", response);
+    let response_json: Vec<GetMessage> = response
+        .into_inner()
+        .messages
+        .into_iter()
+        .map(GetMessage::from)
+        .collect();
+    HttpResponse::Ok().json(response_json)
 }
 
 #[derive(OpenApi)]
 #[openapi(
     paths(send_message, get_messages),
-    components(schemas(Message)),
+    components(schemas(SendMessage)),
     tags(
         (name = "Messaging", description = "API for messaging operations")
     )

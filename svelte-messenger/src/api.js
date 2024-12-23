@@ -3,6 +3,7 @@ const API_BASE = 'http://127.0.0.1:8080';
 export async function fetchMessages() {
     const response = await fetch(`${API_BASE}/messages`);
     if (!response.ok) throw new Error('Failed to fetch messages');
+    console.log(response);
     return response.json();
 }
 

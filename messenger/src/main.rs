@@ -2,7 +2,6 @@ use tonic::transport::Server;
 
 use proto::messenger_server::MessengerServer;
 
-
 mod methods;
 
 mod proto {
