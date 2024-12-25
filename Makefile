@@ -1,17 +1,17 @@
 messenger_build:
-	docker build --platform=linux/amd64 -t messenger -f Dockerfile.messenger .
+	docker build --platform=linux/amd64 -t tempestmon/messenger-0.0.1 -f Dockerfile.messenger .
 
-messenger_start:
-	docker run --rm --platform=linux/amd64 -p 50051:50051 messenger
+messenger_run:
+	docker run --rm -it -p 50051:50051 tempestmon/messenger-0.0.1
 
 api_build:
-	docker build -t api -f Dockerfile.api .
+	docker build --platform=linux/amd64 -t tempestmon/api-0.0.1 -f Dockerfile.api .
 
-api_start:
-	docker run --rm -p 8080:8080 api
+api_run:
+	docker run --rm -it -p 8080:8080 tempestmon/api-0.0.1
 
 svelte_build:
-	docker build -t svelte -f Dockerfile.frontend .
+	docker build -t tempestmon/svelte-0.0.1 -f Dockerfile.frontend .
 
-svelte_start:
-	docker run --rm -p 80:80 svelte
+svelte_run:
+	docker run --rm -p 80:80 tempestmon/svelte-0.0.1

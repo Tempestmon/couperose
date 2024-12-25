@@ -16,6 +16,7 @@ pub mod messenger {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    println!("Starting http server");
     let openapi = ApiDoc::openapi();
     let grpc_clients = initialize_grpc_pool(5).await;
     let app_state = AppState {
@@ -36,7 +37,7 @@ async fn main() -> std::io::Result<()> {
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
