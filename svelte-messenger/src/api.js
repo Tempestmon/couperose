@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8080';
+const API_BASE = 'http://0.0.0.0:8080';
 
 export async function fetchMessages() {
     const response = await fetch(`${API_BASE}/messages`);
@@ -13,7 +13,7 @@ export async function sendMessage(sender, content) {
         recipient: 'Everyone',
         content,
     });
-    const response = await fetch('http://127.0.0.1:8080/message', {
+    const response = await fetch(`${API_BASE}/message`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
