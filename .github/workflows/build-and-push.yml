@@ -24,20 +24,20 @@ jobs:
     - name: Build and Push Messenger Image
       run: |
         make messenger_build
-        docker tag tempestmon/messenger-0.0.1 tempestmon/messenger:latest
-        docker push tempestmon/messenger-0.0.1
+        docker tag tempestmon/messenger:0.0.1 tempestmon/messenger:latest
+        docker push tempestmon/messenger:0.0.1
         docker push tempestmon/messenger:latest
 
     - name: Build and Push API Image
       run: |
         make api_build
-        docker tag tempestmon/api-0.0.1 tempestmon/api:latest
-        docker push tempestmon/api-0.0.1
+        docker tag tempestmon/api:0.0.1 tempestmon/api:latest
+        docker push tempestmon/api:0.0.1
         docker push tempestmon/api:latest
 
     - name: Build and Push Svelte Image
       run: |
         make svelte_build
-        docker tag tempestmon/svelte-0.0.1 tempestmon/svelte:latest
-        docker push tempestmon/svelte-0.0.1
+        docker tag tempestmon/svelte:0.0.1 tempestmon/svelte:latest
+        docker push tempestmon/svelte:0.0.1
         docker push tempestmon/svelte:latest
