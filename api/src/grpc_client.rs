@@ -9,7 +9,7 @@ pub struct AppState {
 }
 
 pub async fn create_grpc_client() -> MessengerClient<Channel> {
-    MessengerClient::connect("http://[::]:50051") // TODO:
+    MessengerClient::connect("http://[::1]:50051") // TODO:
         // вынести
         // в
         // энвы
