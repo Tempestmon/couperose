@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
     };
     let host = env::var("API_HOST").expect("Couldn't get API_HOST env");
     let port = env::var("API_PORT").expect("Couldn't get API_PORT env");
-    let url = format!("{}{}", host, port);
+    let url = format!("{}:{}", host, port);
     HttpServer::new(move || {
         App::new()
             .wrap(

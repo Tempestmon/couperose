@@ -12,7 +12,7 @@ mod proto {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let host = env::var("MESSENGER_HOST").expect("Couldn't get MESSENGER_HOST env");
     let port = env::var("MESSENGER_PORT").expect("Couldn't get MESSENGER_PORT env");
-    let url = format!("{}{}", host, port);
+    let url = format!("{}:{}", host, port);
     let addr = url.parse()?;
 
     let messenger = methods::MessengerService::default();

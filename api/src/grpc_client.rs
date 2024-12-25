@@ -11,7 +11,7 @@ pub struct AppState {
 pub async fn create_grpc_client() -> MessengerClient<Channel> {
     let host = env::var("MESSENGER_HOST").expect("Couldn't get MESSENGER_HOST env");
     let port = env::var("MESSENGER_PORT").expect("Couldn't get MESSENGER_PORT env");
-    let url = format!("http://{}{}", host, port);
+    let url = format!("http://{}:{}", host, port);
     MessengerClient::connect(url)
         .await
         .expect("Faield to create gRPC client")
