@@ -1,6 +1,6 @@
-use tonic::transport::Server;
-
 use proto::messenger_server::MessengerServer;
+use std::env;
+use tonic::transport::Server;
 
 mod methods;
 

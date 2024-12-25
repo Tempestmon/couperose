@@ -6,6 +6,7 @@ use actix_web::App;
 use actix_web::HttpServer;
 use grpc_client::{initialize_grpc_pool, AppState};
 use methods::{get_messages, send_message, ApiDoc};
+use std::env;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
