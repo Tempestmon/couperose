@@ -1,5 +1,5 @@
 use crate::messenger::messenger_client::MessengerClient;
-use std::sync::Arc;
+use std::{env, sync::Arc};
 use tokio::sync::Mutex;
 use tonic::transport::Channel;
 
@@ -9,10 +9,10 @@ pub struct AppState {
 }
 
 pub async fn create_grpc_client() -> MessengerClient<Channel> {
-    MessengerClient::connect("http://[::1]:50051") // TODO:
-        // вынести
-        // в
-        // энвы
+    let host = env::var("MESSENGER_HOST").expect("Couldn't get MESSENGER_HOST env");
+    let port = env::var("MESSENGER_PORT").expect("Couldn't get MESSENGER_PORT env");
+    let url = format!("http://{}{}", host, port);
+    MessengerClient::connect(url)
         .await
         .expect("Faield to create gRPC client")
 }

@@ -1,3 +1,5 @@
+use std::env;
+
 use actix_cors::Cors;
 use actix_web::web;
 use actix_web::App;
@@ -22,6 +24,9 @@ async fn main() -> std::io::Result<()> {
     let app_state = AppState {
         grpc_clients: grpc_clients.clone(),
     };
+    let host = env::var("API_HOST").expect("Couldn't get API_HOST env");
+    let port = env::var("API_PORT").expect("Couldn't get API_PORT env");
+    let url = format!("{}{}", host, port);
     HttpServer::new(move || {
         App::new()
             .wrap(
@@ -37,7 +42,7 @@ async fn main() -> std::io::Result<()> {
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind(url)?
     .run()
     .await
 }
