@@ -38,7 +38,7 @@ svelte_tag:
 	docker tag $(TENANT)/svelte:$(FRONTEND_VERSION) $(TENANT)/svelte:latest
 
 svelte_push: 
-	docker push $(TENANT)/svelte:$(API_VERSION) && docker push $(TENANT)/svelte:latest
+	docker push $(TENANT)/svelte:$(FRONTEND_VERSION) && docker push $(TENANT)/svelte:latest
 
 svelte_run:
 	docker run --rm -p 80:80 $(TENANT)/svelte:$(FRONTEND_VERSION)
