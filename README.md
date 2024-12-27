@@ -21,14 +21,14 @@ The system will support functionalities such as user messaging, file sharing, an
   - Provide metrics, logs, and tracing for system observability.
 
 * Should-Have:
-* Support search across chat histories.
-* Include typing indicators and read receipts.
-* Real-time communication via gRPC or WebSocket.
-* Scale horizontally to handle increasing user loads.
+  * Support search across chat histories.
+  * Include typing indicators and read receipts.
+  * Real-time communication via gRPC or WebSocket.
+  * Scale horizontally to handle increasing user loads.
 * Could-Have:
-* Real-time notifications for new messages.
-* Support rich media like videos or GIFs.
-* Integration with other services (e.g., bot frameworks).
+  * Real-time notifications for new messages.
+  * Support rich media like videos or GIFs.
+  * Integration with other services (e.g., bot frameworks).
 
 **Non-Functional Requirements**:
 - Ensure low latency for messaging (&lt;200ms for message delivery).
