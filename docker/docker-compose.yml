@@ -12,7 +12,7 @@ services:
       - "50051:50051"
 
   api:
-    image: tempestmon/api:0.0.1
+    image: tempestmon/api:0.0.2
     container_name: api
     depends_on:
       - messenger
@@ -21,7 +21,8 @@ services:
       - MESSENGER_PORT=50051
       - API_HOST=0.0.0.0
       - API_PORT=8080
-    networks:
+      - CORS_URL=https://messenger.tempestmon.ru
+      networks:
       - app_network
     ports:
       - "8080:8080"

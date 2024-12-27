@@ -26,12 +26,13 @@ async fn main() -> std::io::Result<()> {
     let host = env::var("API_HOST").expect("Couldn't get API_HOST env");
     let port = env::var("API_PORT").expect("Couldn't get API_PORT env");
     let url = format!("{}:{}", host, port);
+    let allowed_url = env::var("CORS_URL").expect("Couldnt get CORS_URL env");
     HttpServer::new(move || {
         App::new()
             .wrap(
                 Cors::default()
-                    .allow_any_origin() // Разрешает запросы с любых источников
-                    .allow_any_method() // Разрешает любые методы (GET, POST и т.д.)
+                    .allowed_origin(&allowed_url) // Разрешает запросы с любых источников
+                    .allowed_methods(vec!["GET", "POST", "OPTIONS"]) // Разрешает любые методы (GET, POST и т.д.)
                     .allow_any_header(), // Разрешает любые заголовки
             )
             .app_data(web::Data::new(app_state.clone()))
