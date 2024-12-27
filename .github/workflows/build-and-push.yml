@@ -25,7 +25,7 @@ jobs:
       run: |
         make messenger_build
         make messenger_tag
-        make messnger_push
+        make messenger_push
 
     - name: Build and Push API Image
       run: |
