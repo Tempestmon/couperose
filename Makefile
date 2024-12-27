@@ -2,7 +2,7 @@ COMPOSE_FILE = docker/docker-compose.yml
 TENANT = tempestmon
 API_VERSION = 0.0.1
 MESSENGER_VERSION = 0.0.1
-FRONTEND_VERSION = 0.0.1
+FRONTEND_VERSION = 0.0.2
 
 
 messenger_build:

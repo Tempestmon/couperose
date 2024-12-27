@@ -8,6 +8,10 @@ RUN npm install
 
 COPY /svelte-messenger /app
 
+# docker-compose api address
+ARG API_URL
+ENV API_URL=http://api:8080
+
 RUN npm run build
 
 FROM nginx:alpine

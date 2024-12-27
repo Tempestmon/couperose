@@ -5,7 +5,7 @@ import terser from '@rollup/plugin-terser';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import css from 'rollup-plugin-css-only';
-import replace from '@rollup/plugin-replace'
+import replace from '@rollup/plugin-replace';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -50,7 +50,9 @@ export default {
 		css({ output: 'bundle.css' }),
     replace({
       preventAssignment: true,
-      'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:8080')
+      values: {
+        __API_URL__: JSON.stringify(process.env.API_URL || 'http://localhost:8080'),
+      },
     }),
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In

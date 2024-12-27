@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   messenger:
-    image: tempestmon/messenger
+    image: tempestmon/messenger:0.0.1
     container_name: messenger
     environment:
       - MESSENGER_HOST=0.0.0.0
@@ -12,7 +12,7 @@ services:
       - "50051:50051"
 
   api:
-    image: tempestmon/api
+    image: tempestmon/api:0.0.1
     container_name: api
     depends_on:
       - messenger
@@ -27,16 +27,14 @@ services:
       - "8080:8080"
 
   frontend:
-      image: tempestmon/svelte
-      container_name: frontend
-      depends_on:
-        - api
-      environment:
-        - VITE_API_URL=http://api:8080
-      networks:
-        - app_network
-      ports:
-        - "80:80"
+    image: tempestmon/svelte:0.0.2
+    container_name: frontend
+    depends_on:
+      - api
+    networks:
+      - app_network
+    ports:
+      - "80:80"
 
 networks:
   app_network:

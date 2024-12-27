@@ -1,9 +1,7 @@
-const API_BASE = process.env.VITE_API_URL
-// const API_BASE = 'http://0.0.0.0:8080';
+const API_BASE = __API_URL__;
 
 export async function fetchMessages() {
     console.log(`From local: ${API_BASE}`);
-    // console.log(`From envs: ${process.env.VITE_API_URL}`);
     const response = await fetch(`${API_BASE}/messages`);
     if (!response.ok) throw new Error('Failed to fetch messages');
     console.log(response);
