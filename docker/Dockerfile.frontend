@@ -10,7 +10,7 @@ COPY /svelte-messenger /app
 
 # docker-compose api address
 ARG API_URL
-ENV API_URL=http://api:8080
+ENV API_URL=https://messenger.tempestmon.ru/api
 
 RUN npm run build
 
