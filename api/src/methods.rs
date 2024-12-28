@@ -52,7 +52,6 @@ pub async fn get_messages() -> impl Responder {
     let mut grpc_client = create_grpc_client().await;
     let grpc_request = tonic::Request::new(messenger::GetMessagesRequest::default());
     let response = grpc_client.get_messages(grpc_request).await.unwrap();
-    println!("{:#?}", response);
     let response_json: Vec<GetMessage> = response
         .into_inner()
         .messages

@@ -29,6 +29,7 @@ pub async fn get_grpc_client_from_pool(
     pool: Arc<Mutex<Vec<MessengerClient<Channel>>>>,
 ) -> Option<MessengerClient<Channel>> {
     let mut pool = pool.lock().await;
+    println!("Take client from connection pool");
     pool.pop() // Take a client from the pool
 }
 
@@ -37,5 +38,6 @@ pub async fn return_grpc_client_to_pool(
     client: MessengerClient<Channel>,
 ) {
     let mut pool = pool.lock().await;
+    println!("Return connection to pool");
     pool.push(client);
 }
