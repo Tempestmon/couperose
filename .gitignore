@@ -24,3 +24,5 @@ Cargo.lock
 
 /target
 .DS_Store
+./api/proto/
+./messenger/proto/

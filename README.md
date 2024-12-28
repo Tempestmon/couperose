@@ -1,6 +1,7 @@
 [![Build and Push Docker Images](https://github.com/Tempestmon/couperose/actions/workflows/build-and-push.yml/badge.svg?branch=master)](https://github.com/Tempestmon/couperose/actions/workflows/build-and-push.yml)
 # couperose
 An experimental messenger
+Available by https://messenger.tempestmon.ru
 
 # SPEC-1: Messenger Service with Diverse Databases and Observability
 

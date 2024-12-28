@@ -58,3 +58,6 @@ logs:
 
 ps:
 	docker-compose -f $(COMPOSE_FILE) ps
+
+clean:
+	docker-compose -f $(COMPOSE_FILE) down --rmi all --volumes --remove-orphans
