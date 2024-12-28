@@ -31,9 +31,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(
                 Cors::default()
-                    .allowed_origin(&allowed_url) // Разрешает запросы с любых источников
-                    .allowed_methods(vec!["GET", "POST", "OPTIONS"]) // Разрешает любые методы (GET, POST и т.д.)
-                    .allow_any_header(), // Разрешает любые заголовки
+                    .allowed_origin(&allowed_url)
+                    .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+                    .allow_any_header(),
             )
             .app_data(web::Data::new(app_state.clone()))
             .service(send_message)

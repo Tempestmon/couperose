@@ -26,3 +26,4 @@ Cargo.lock
 .DS_Store
 api/proto/*
 messenger/proto/*
+**/*.env
