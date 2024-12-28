@@ -30,5 +30,5 @@
 /target
 LICENSE
 README.md
-./api/proto/
-./messenger/proto/
+api/proto/*
+messenger/proto/*
