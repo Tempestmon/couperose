@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   messenger:
-    image: tempestmon/messenger:0.0.1
+    image: tempestmon/messenger:latest
     container_name: messenger
     environment:
       - MESSENGER_HOST=0.0.0.0
@@ -12,7 +12,7 @@ services:
       - "50051:50051"
 
   api:
-    image: tempestmon/api:0.0.2
+    image: tempestmon/api:latest
     container_name: api
     depends_on:
       - messenger
@@ -28,7 +28,7 @@ services:
       - "8080:8080"
 
   frontend:
-    image: tempestmon/svelte:0.0.2
+    image: tempestmon/svelte:latest
     container_name: frontend
     depends_on:
       - api
