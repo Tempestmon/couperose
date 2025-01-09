@@ -3,17 +3,30 @@ use actix_web::web;
 use actix_web::App;
 use actix_web::HttpServer;
 use grpc_client::{initialize_grpc_pool, AppState};
-use methods::{get_messages, send_message, ApiDoc};
+use methods::get::get_messages;
+use methods::send::send_message;
 use std::env;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
 mod grpc_client;
-mod methods;
 mod models;
 pub mod messenger {
     tonic::include_proto!("messenger");
 }
+pub mod methods;
+
+use crate::models::SendMessage;
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(methods::send::send_message, methods::get::get_messages),
+    components(schemas(SendMessage)),
+    tags(
+        (name = "Messaging", description = "API for messaging operations")
+    )
+)]
+pub struct ApiDoc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
