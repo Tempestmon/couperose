@@ -30,7 +30,6 @@ pub struct ApiDoc;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Starting http server");
     let openapi = ApiDoc::openapi();
     let grpc_clients = initialize_grpc_pool(5).await;
     let app_state = AppState {
@@ -40,6 +39,7 @@ async fn main() -> std::io::Result<()> {
     let port = env::var("API_PORT").expect("Couldn't get API_PORT env");
     let url = format!("{}:{}", host, port);
     let allowed_url = env::var("CORS_URL").expect("Couldnt get CORS_URL env");
+    println!("Starting http server {}", url);
     HttpServer::new(move || {
         App::new()
             .wrap(

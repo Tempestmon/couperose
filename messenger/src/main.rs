@@ -17,6 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let messenger = methods::MessengerService::default();
 
+    println!("Starting grpc server {}", url);
     Server::builder()
         .add_service(MessengerServer::new(messenger))
         .serve(addr)
