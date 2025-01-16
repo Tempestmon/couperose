@@ -3,6 +3,7 @@ TENANT = tempestmon
 API_VERSION = 0.1.2
 MESSENGER_VERSION = 0.1.1
 FRONTEND_VERSION = 0.1.2
+PROMETHEUS_VERSION = "v3.1.0"
 
 # MESSENGER SECTION
 messenger_build:
@@ -42,6 +43,18 @@ svelte_push:
 
 svelte_run:
 	docker run --rm -p 80:80 $(TENANT)/svelte:$(FRONTEND_VERSION)
+
+# PROMETHEUS SECTION
+prometheus_run:
+	docker run --rm -it -p 9090:9090 \
+		-v $(PWD)/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+		--name prometheus prom/prometheus:$(PROMETHEUS_VERSION)
+
+prometheus_logs:
+	docker logs prometheus
+
+prometheus_stop:
+	docker stop prometheus
 
 # COMPOSE SECTION
 up:

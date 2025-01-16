@@ -4,38 +4,45 @@ services:
     image: tempestmon/messenger:latest
     container_name: messenger
     environment:
-      - MESSENGER_HOST=0.0.0.0
+      - MESSENGER_HOST=messenger
       - MESSENGER_PORT=50051
-    networks:
-      - app_network
     ports:
       - "50051:50051"
+    networks:
+      - app_network
 
   api:
     image: tempestmon/api:latest
     container_name: api
-    depends_on:
-      - messenger
     environment:
       - MESSENGER_HOST=messenger
       - MESSENGER_PORT=50051
       - API_HOST=0.0.0.0
       - API_PORT=8080
-      - CORS_URL=https://messenger.tempestmon.ru
-    networks:
-    - app_network
     ports:
       - "8080:8080"
+    networks:
+      - app_network
 
   frontend:
     image: tempestmon/svelte:latest
     container_name: frontend
-    depends_on:
-      - api
+    environment:
+      - VITE_API_URL=http://api:8080
+    ports:
+      - "80:80"
     networks:
       - app_network
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
-      - "8081:80"
+      - "9090:9090"
+    networks:
+      - app_network
 
 networks:
   app_network:
