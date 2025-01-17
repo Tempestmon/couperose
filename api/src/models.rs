@@ -3,7 +3,7 @@ use utoipa::ToSchema;
 
 use crate::messenger::{Message, SendMessageRequest};
 
-#[derive(Deserialize, Serialize, ToSchema)]
+#[derive(Deserialize, Serialize, ToSchema, Clone)]
 pub struct SendMessage {
     pub sender: String,
     pub recipient: String,

@@ -4,6 +4,7 @@ use crate::methods::helpers::is_proxy_request;
 use crate::models::SendMessage;
 use actix_web::web::{Data, Json};
 use actix_web::{post, HttpRequest, HttpResponse, Responder};
+use tracing::info;
 
 #[utoipa::path(
     post,
@@ -20,7 +21,6 @@ pub async fn send_message(
     state: Data<AppState>,
     message: Json<SendMessage>,
 ) -> impl Responder {
-    println!("Got message");
     let has_token = is_proxy_request(_req.clone()).await;
     if has_token {
         let client = get_grpc_client_from_pool(state.grpc_clients.clone()).await;
@@ -28,8 +28,12 @@ pub async fn send_message(
             Some(client) => client,
             None => return HttpResponse::InternalServerError().body("No available gRPC clients"),
         };
+        let message = message.into_inner().clone();
         let grpc_request =
-            tonic::Request::new(messenger::SendMessageRequest::from(message.into_inner()));
+            tonic::Request::new(messenger::SendMessageRequest::from(message.clone()));
+        let sender = message.sender;
+        let recipient = message.recipient;
+        info!("Message sent from {} to {}", sender, recipient);
         let response = client.send_message(grpc_request).await;
         return_grpc_client_to_pool(state.grpc_clients.clone(), client).await;
         match response {

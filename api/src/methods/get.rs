@@ -2,6 +2,7 @@ use crate::grpc_client::create_grpc_client;
 use crate::messenger;
 use crate::models::GetMessage;
 use actix_web::{get, HttpRequest, HttpResponse, Responder};
+use tracing::info;
 
 use crate::methods::helpers::is_proxy_request;
 
@@ -14,7 +15,7 @@ use crate::methods::helpers::is_proxy_request;
 )]
 #[get("/messages")]
 pub async fn get_messages(_req: HttpRequest) -> impl Responder {
-    println!("Got request to get messages");
+    info!("Got request to get messages");
     let has_token = is_proxy_request(_req.clone()).await;
     if has_token {
         let mut grpc_client = create_grpc_client().await; // TODO: Use grpc pool
