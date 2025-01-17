@@ -4,6 +4,8 @@ use crate::proto::{
 };
 use serde::{Deserialize, Serialize};
 use tokio::fs;
+use tonic::async_trait;
+use tracing::info;
 
 #[derive(Debug, Default)]
 pub struct MessengerService {}
@@ -35,7 +37,7 @@ impl From<Message> for crate::proto::Message {
     }
 }
 
-#[tonic::async_trait]
+#[async_trait]
 impl Messenger for MessengerService {
     async fn send_message(
         &self,
@@ -44,7 +46,7 @@ impl Messenger for MessengerService {
         let input = request.get_ref();
         let path = "messages.json";
 
-        println!("Got request from {}", input.sender);
+        info!("Got request from {}", input.sender);
 
         let response = SendMessageResponse { success: true };
 

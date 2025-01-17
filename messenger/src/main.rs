@@ -1,6 +1,7 @@
 use proto::messenger_server::MessengerServer;
 use std::env;
 use tonic::transport::Server;
+use tracing::info;
 
 mod methods;
 
@@ -17,7 +18,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let messenger = methods::MessengerService::default();
 
-    println!("Starting grpc server {}", url);
+    let subscriber = tracing_subscriber::fmt().with_target(false).finish();
+    tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber.");
+
+    info!("Starting grpc server {}", url);
     Server::builder()
         .add_service(MessengerServer::new(messenger))
         .serve(addr)
