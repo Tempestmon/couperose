@@ -21,20 +21,20 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Messenger Image
+    - name: Build and Push akagi Image
       run: |
-        make messenger_build
-        make messenger_tag
-        make messenger_push
+        make akagi_build
+        make akagi_tag
+        make akagi_push
 
-    - name: Build and Push API Image
+    - name: Build and Push kaga Image
       run: |
-        make api_build
-        make api_tag
-        make api_push
+        make kaga_build
+        make kaga_tag
+        make kaga_push
 
-    - name: Build and Push Svelte Image
+    - name: Build and Push hiryu Image
       run: |
-        make svelte_build
-        make svelte_tag
-        make svelte_push
+        make hiryu_build
+        make hiryu_tag
+        make hiryu_push

@@ -2,11 +2,11 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 
-COPY ../svelte-messenger/package*.json /app
+COPY ../hiryu/package*.json /app
 
 RUN npm install
 
-COPY /svelte-messenger /app
+COPY /hiryu /app
 
 # docker-compose api address
 ARG API_URL

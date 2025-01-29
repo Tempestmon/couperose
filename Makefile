@@ -6,43 +6,43 @@ FRONTEND_VERSION = 0.1.2
 PROMETHEUS_VERSION = "v3.1.0"
 
 # MESSENGER SECTION
-messenger_build:
-	docker build -t $(TENANT)/messenger:$(MESSENGER_VERSION) -f docker/Dockerfile.messenger .
+akagi_build:
+	docker build -t $(TENANT)/akagi:$(MESSENGER_VERSION) -f docker/Dockerfile.akagi .
 
-messenger_tag:
-	docker tag $(TENANT)/messenger:$(MESSENGER_VERSION) $(TENANT)/messenger:latest
+akagi_tag:
+	docker tag $(TENANT)/akagi:$(MESSENGER_VERSION) $(TENANT)/akagi:latest
 
-messenger_push: 
-	docker push $(TENANT)/messenger:$(MESSENGER_VERSION) && docker push $(TENANT)/messenger:latest
+akagi_push: 
+	docker push $(TENANT)/akagi:$(MESSENGER_VERSION) && docker push $(TENANT)/akagi:latest
 
-messenger_run:
-	docker run --rm -it -p 50051:50051 $(TENANT)/messenger:$(MESSENGER_VERSION)
+akagi_run:
+	docker run --rm -it -p 50051:50051 $(TENANT)/akagi:$(MESSENGER_VERSION)
 
 # API SECTION
-api_build:
-	docker build -t $(TENANT)/api:$(API_VERSION) -f docker/Dockerfile.api .
+kaga_build:
+	docker build -t $(TENANT)/kaga:$(API_VERSION) -f docker/Dockerfile.kaga .
 
-api_tag:
-	docker tag $(TENANT)/api:$(API_VERSION) $(TENANT)/api:latest
+kaga_tag:
+	docker tag $(TENANT)/kaga:$(API_VERSION) $(TENANT)/kaga:latest
 
-api_push: 
-	docker push $(TENANT)/api:$(API_VERSION) && docker push $(TENANT)/api:latest
+kaga_push: 
+	docker push $(TENANT)/kaga:$(API_VERSION) && docker push $(TENANT)/kaga:latest
 
-api_run:
-	docker run --rm -it -p 8080:8080 $(TENANT)/api:$(API_VERSION)
+kaga_run:
+	docker run --rm -it -p 8080:8080 $(TENANT)/kaga:$(API_VERSION)
 
 # FRONTEND SECTION
-svelte_build:
-	docker build -t $(TENANT)/svelte:$(FRONTEND_VERSION) -f docker/Dockerfile.frontend .
+hiryu_build:
+	docker build -t $(TENANT)/hiryu:$(FRONTEND_VERSION) -f docker/Dockerfile.hiryu .
 
-svelte_tag:
-	docker tag $(TENANT)/svelte:$(FRONTEND_VERSION) $(TENANT)/svelte:latest
+hiryu_tag:
+	docker tag $(TENANT)/hiryu:$(FRONTEND_VERSION) $(TENANT)/hiryu:latest
 
-svelte_push: 
-	docker push $(TENANT)/svelte:$(FRONTEND_VERSION) && docker push $(TENANT)/svelte:latest
+hiryu_push: 
+	docker push $(TENANT)/hiryu:$(FRONTEND_VERSION) && docker push $(TENANT)/hiryu:latest
 
-svelte_run:
-	docker run --rm -p 80:80 $(TENANT)/svelte:$(FRONTEND_VERSION)
+hiryu_run:
+	docker run --rm -p 80:80 $(TENANT)/hiryu:$(FRONTEND_VERSION)
 
 # PROMETHEUS SECTION
 prometheus_run:

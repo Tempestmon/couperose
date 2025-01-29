@@ -77,6 +77,8 @@ impl Messenger for MessengerService {
         &self,
         _request: tonic::Request<GetMessagesRequest>,
     ) -> std::result::Result<tonic::Response<GetMessagesResponse>, tonic::Status> {
+        info!("Got request to get messages");
+
         let path = "messages.json";
         let data = fs::read_to_string(path)
             .await

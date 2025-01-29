@@ -1,21 +1,21 @@
 version: "3.9"
 services:
-  messenger:
-    image: tempestmon/messenger:latest
-    container_name: messenger
+  akagi:
+    image: tempestmon/akagi:latest
+    container_name: akagi
     environment:
-      - MESSENGER_HOST=messenger
+      - MESSENGER_HOST=akagi
       - MESSENGER_PORT=50051
     ports:
       - "50051:50051"
     networks:
       - app_network
 
-  api:
-    image: tempestmon/api:latest
-    container_name: api
+  kaga:
+    image: tempestmon/kaga:latest
+    container_name: kaga
     environment:
-      - MESSENGER_HOST=messenger
+      - MESSENGER_HOST=akagi
       - MESSENGER_PORT=50051
       - API_HOST=0.0.0.0
       - API_PORT=8080
@@ -24,11 +24,11 @@ services:
     networks:
       - app_network
 
-  frontend:
-    image: tempestmon/svelte:latest
-    container_name: frontend
+  hiryu:
+    image: tempestmon/hiryu:latest
+    container_name: hiryu
     environment:
-      - VITE_API_URL=http://api:8080
+      - VITE_API_URL=http://kaga:8080
     ports:
       - "80:80"
     networks:
