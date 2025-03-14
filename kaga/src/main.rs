@@ -44,7 +44,7 @@ async fn main() -> std::io::Result<()> {
     let host = env::var("API_HOST").expect("Couldn't get API_HOST env");
     let port = env::var("API_PORT").expect("Couldn't get API_PORT env");
     let url = format!("{}:{}", host, port);
-    let allowed_url = env::var("CORS_URL").expect("Couldnt get CORS_URL env");
+    // let allowed_url = env::var("CORS_URL").expect("Couldnt get CORS_URL env");
     info!("Starting http server {}", url);
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
@@ -52,12 +52,12 @@ async fn main() -> std::io::Result<()> {
         .unwrap();
     HttpServer::new(move || {
         App::new()
-            .wrap(
-                Cors::default()
-                    .allowed_origin(&allowed_url)
-                    .allowed_methods(vec!["GET", "POST", "OPTIONS"])
-                    .allow_any_header(),
-            )
+            // .wrap(
+            //     Cors::default()
+            //         .allowed_origin(&allowed_url)
+            //         .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+            //         .allow_any_header(),
+            // )
             .wrap(prometheus.clone())
             .wrap(Logger::default())
             .app_data(web::Data::new(app_state.clone()))
