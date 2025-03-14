@@ -1,9 +1,6 @@
 version: "3.9"
 services:
   hiryu:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.hiryu
     image: tempestmon/hiryu:latest
     container_name: hiryu
     environment:
@@ -20,9 +17,6 @@ services:
       - app_network
 
   akagi:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.akagi
     image: tempestmon/akagi:latest
     container_name: akagi
     environment:
@@ -34,9 +28,6 @@ services:
       - app_network
 
   kaga:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.kaga
     image: tempestmon/kaga:latest
     container_name: kaga
     environment:

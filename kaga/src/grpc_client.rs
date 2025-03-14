@@ -16,7 +16,7 @@ pub async fn create_grpc_client() -> MessengerClient<Channel> {
     info!("Create grpc client for {}", url);
     MessengerClient::connect(url)
         .await
-        .expect("Faield to create gRPC client")
+        .expect("Failed to create gRPC client")
 }
 
 pub async fn initialize_grpc_pool(pool_size: usize) -> Arc<Mutex<Vec<MessengerClient<Channel>>>> {
