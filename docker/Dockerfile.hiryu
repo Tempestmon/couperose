@@ -21,7 +21,7 @@ RUN apk add --no-cache gettext && \
 
 COPY soryu/site-enabled /etc/nginx/templates
 COPY --from=svelte-build /app/public /usr/share/nginx/html/hiryu
-COPY soryu/static /var/www/html
+COPY soryu/static/tempestmon /var/www/html/tempestmon
 COPY soryu/nginx.conf /etc/nginx/nginx.conf
 
 RUN mkdir -p /etc/letsencrypt
