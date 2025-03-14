@@ -1,6 +1,28 @@
 version: "3.9"
 services:
+  hiryu:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.hiryu
+    image: tempestmon/hiryu:latest
+    container_name: hiryu
+    environment:
+      - API_TOKEN=${API_TOKEN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - akagi
+      - kaga
+    networks:
+      - app_network
+
   akagi:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.akagi
     image: tempestmon/akagi:latest
     container_name: akagi
     environment:
@@ -12,6 +34,9 @@ services:
       - app_network
 
   kaga:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.kaga
     image: tempestmon/kaga:latest
     container_name: kaga
     environment:
@@ -24,21 +49,11 @@ services:
     networks:
       - app_network
 
-  hiryu:
-    image: tempestmon/hiryu:latest
-    container_name: hiryu
-    environment:
-      - VITE_API_URL=http://kaga:8080
-    ports:
-      - "80:80"
-    networks:
-      - app_network
-
   prometheus:
     image: prom/prometheus:v3.1.0
     container_name: prometheus
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
