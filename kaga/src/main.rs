@@ -56,7 +56,8 @@ async fn main() -> std::io::Result<()> {
                 Cors::default()
                     // .allowed_origin(&allowed_url)'
                     .allow_any_origin()
-                    .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+                    // .allowed_methods(vec!["GET", "POST", "OPTIONS"])
+                    .allow_any_method()
                     .allow_any_header(),
             )
             .wrap(prometheus.clone())
