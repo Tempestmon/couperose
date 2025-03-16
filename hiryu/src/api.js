@@ -1,5 +1,5 @@
 // const API_BASE = __API_URL__;
-const API_BASE = "https://messenger.tempestmon.ru/api:8080";
+const API_BASE = "https://messenger.tempestmon.ru/api";
 
 export async function fetchMessages() {
   console.log(`From local: ${API_BASE}`);
