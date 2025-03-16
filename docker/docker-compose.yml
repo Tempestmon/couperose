@@ -5,6 +5,7 @@ services:
     container_name: hiryu
     environment:
       - API_TOKEN=${API_TOKEN}
+      - VITE_API_URL=http://kaga:8080
     ports:
       - "80:80"
       - "443:443"
