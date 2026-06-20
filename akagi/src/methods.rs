@@ -2,9 +2,7 @@ use crate::proto::{
     messenger_server::Messenger, GetMessagesRequest, GetMessagesResponse, SendMessageRequest,
     SendMessageResponse,
 };
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::env;
 use tokio::fs;
 use tonic::async_trait;
 use tracing::info;
@@ -37,12 +35,6 @@ impl From<Message> for crate::proto::Message {
             timestamp: msg.timestamp,
         }
     }
-}
-
-pub fn establish_connection() -> PgConnection {
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    PgConnection::establish(&database_url)
-        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
 #[async_trait]
