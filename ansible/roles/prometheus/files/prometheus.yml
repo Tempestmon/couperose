@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "api"
+    static_configs:
+      - targets: ["kaga:8080"]
+
+  - job_name: "messenger"
+    static_configs:
+      - targets: ["akagi:50051"]

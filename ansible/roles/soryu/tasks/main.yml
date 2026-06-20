@@ -1,0 +1,37 @@
+---
+- name: Ensure sounds directory exists on host
+  ansible.builtin.file:
+    path: "{{ sounds_host_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Pull hiryu image
+  community.docker.docker_image:
+    name: tempestmon/hiryu
+    tag: "{{ hiryu_version }}"
+    source: pull
+    force_source: true
+
+# The hiryu image contains nginx + Svelte frontend + static site.
+# start-nginx.sh runs envsubst to inject API_TOKEN into nginx.conf templates,
+# then starts nginx. Let's Encrypt certs are mounted read-only from the host
+# (obtained by the certbot role which must run first).
+- name: Run hiryu container (nginx + frontend)
+  community.docker.docker_container:
+    name: hiryu
+    image: "tempestmon/hiryu:{{ hiryu_version }}"
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ docker_network }}"
+    ports:
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+    env:
+      API_TOKEN: "{{ api_token }}"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - "{{ sounds_host_path }}:/usr/share/nginx/html/audio"
+    comparisons:
+      image: strict
+      env: strict

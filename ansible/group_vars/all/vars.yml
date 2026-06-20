@@ -1,0 +1,29 @@
+---
+# Docker
+docker_network: app_network
+
+# Domains
+domain_main: tempestmon.xyz
+domain_www: www.tempestmon.xyz
+domain_messenger: messenger.tempestmon.xyz
+domain_grafana: grafana.tempestmon.xyz
+
+# Service connectivity
+messenger_host: akagi
+messenger_port: "50051"
+api_host: "0.0.0.0"
+api_port: "8080"
+cors_url: "https://messenger.tempestmon.xyz"
+
+# Image versions (match Makefile)
+akagi_version: "latest"
+kaga_version: "latest"
+hiryu_version: "latest"
+prometheus_version: "v3.1.0"
+
+# Certbot
+certbot_email: laiitrigen@gmail.com
+
+# Host paths
+sounds_host_path: /home/tempestmon/sounds
+prometheus_config_path: /opt/couperose/prometheus

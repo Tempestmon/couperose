@@ -1,0 +1,15 @@
+---
+- name: Deploy couperose
+  hosts: vps
+  become: true
+  vars_files:
+    - secrets.yml   # local only, never committed — see ansible/secrets.yml
+
+  roles:
+    - common      # Docker CE, Python SDK, Docker network
+    - certbot     # Let's Encrypt TLS certificates
+    - akagi       # gRPC messaging backend
+    - kaga        # HTTP REST API gateway
+    - soryu       # nginx reverse proxy + Svelte frontend (hiryu image)
+    - prometheus  # Metrics scraper
+    - grafana     # Grafana on grafana.tempestmon.xyz

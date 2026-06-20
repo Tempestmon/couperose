@@ -27,3 +27,5 @@ Cargo.lock
 api/proto/*
 messenger/proto/*
 **/*.env
+ansible/secrets.yml
+CLAUDE.md

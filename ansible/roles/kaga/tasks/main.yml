@@ -1,0 +1,28 @@
+---
+- name: Pull kaga image
+  community.docker.docker_image:
+    name: tempestmon/kaga
+    tag: "{{ kaga_version }}"
+    source: pull
+    force_source: true
+
+- name: Run kaga container
+  community.docker.docker_container:
+    name: kaga
+    image: "tempestmon/kaga:{{ kaga_version }}"
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ docker_network }}"
+    ports:
+      - "8080:8080"
+    env:
+      MESSENGER_HOST: "{{ messenger_host }}"
+      MESSENGER_PORT: "{{ messenger_port }}"
+      API_HOST: "{{ api_host }}"
+      API_PORT: "{{ api_port }}"
+      CORS_URL: "{{ cors_url }}"
+      API_TOKEN: "{{ api_token }}"
+    comparisons:
+      image: strict
+      env: strict

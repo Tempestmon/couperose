@@ -1,0 +1,91 @@
+---
+- name: Install certbot and nginx plugin
+  ansible.builtin.apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+    update_cache: true
+
+# ── Main site (tempestmon.xyz) ───────────────────────────────────────────────
+#
+# The nginx conf baked into the hiryu image references the cert path
+# /etc/letsencrypt/live/tempestmon.ru/... (legacy name from when the primary
+# domain was .ru). We use --cert-name to store the new .xyz cert under that
+# same path so the image works without a rebuild.
+
+- name: Check if cert exists for main domain
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/tempestmon.ru/fullchain.pem
+  register: cert_main
+
+- name: Stop hiryu container before standalone challenge (if running)
+  community.docker.docker_container:
+    name: hiryu
+    state: stopped
+  when: not cert_main.stat.exists
+  ignore_errors: true  # container may not exist yet on first run
+
+- name: Obtain TLS certificate for main site
+  ansible.builtin.command: >
+    certbot certonly --standalone --non-interactive --agree-tos
+    --email {{ certbot_email }}
+    --cert-name tempestmon.ru
+    -d {{ domain_main }}
+    -d {{ domain_www }}
+  when: not cert_main.stat.exists
+
+# ── Messenger subdomain ──────────────────────────────────────────────────────
+
+- name: Check if cert exists for messenger domain
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/{{ domain_messenger }}/fullchain.pem
+  register: cert_messenger
+
+- name: Stop hiryu container before standalone challenge (if running)
+  community.docker.docker_container:
+    name: hiryu
+    state: stopped
+  when: not cert_messenger.stat.exists
+  ignore_errors: true
+
+- name: Obtain TLS certificate for messenger
+  ansible.builtin.command: >
+    certbot certonly --standalone --non-interactive --agree-tos
+    --email {{ certbot_email }}
+    -d {{ domain_messenger }}
+  when: not cert_messenger.stat.exists
+
+# ── Grafana subdomain ───────────────────────────────────────────────────────
+
+- name: Check if cert exists for grafana domain
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/{{ domain_grafana }}/fullchain.pem
+  register: cert_grafana
+
+- name: Stop hiryu container before standalone challenge (if running)
+  community.docker.docker_container:
+    name: hiryu
+    state: stopped
+  when: not cert_grafana.stat.exists
+  ignore_errors: true
+
+- name: Obtain TLS certificate for grafana
+  ansible.builtin.command: >
+    certbot certonly --standalone --non-interactive --agree-tos
+    --email {{ certbot_email }}
+    -d {{ domain_grafana }}
+  when: not cert_grafana.stat.exists
+
+# ── Automatic renewal ────────────────────────────────────────────────────────
+
+- name: Add certbot renewal cron job
+  ansible.builtin.cron:
+    name: certbot-renew
+    minute: "0"
+    hour: "3"
+    day: "*/14"
+    job: >-
+      certbot renew --quiet
+      --pre-hook  "docker stop hiryu"
+      --post-hook "docker start hiryu"

@@ -1,0 +1,49 @@
+---
+- name: Ensure grafana provisioning directory exists
+  ansible.builtin.file:
+    path: /opt/couperose/grafana/provisioning/datasources
+    state: directory
+    mode: "0755"
+
+# Grafana container runs as UID 472
+- name: Ensure grafana data directory exists with correct ownership
+  ansible.builtin.file:
+    path: /opt/couperose/grafana/data
+    state: directory
+    owner: "472"
+    group: "472"
+    mode: "0755"
+
+- name: Copy Prometheus datasource provisioning config
+  ansible.builtin.copy:
+    src: datasources.yml
+    dest: /opt/couperose/grafana/provisioning/datasources/prometheus.yml
+    mode: "0644"
+  notify: Restart grafana
+
+- name: Pull grafana image
+  community.docker.docker_image:
+    name: grafana/grafana
+    tag: latest
+    source: pull
+
+- name: Run grafana container
+  community.docker.docker_container:
+    name: grafana
+    image: grafana/grafana:latest
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ docker_network }}"
+    # Port is not exposed to the host — nginx (hiryu) proxies it internally
+    env:
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password }}"
+      GF_SERVER_DOMAIN: "{{ domain_grafana }}"
+      GF_SERVER_ROOT_URL: "https://{{ domain_grafana }}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - /opt/couperose/grafana/data:/var/lib/grafana
+      - /opt/couperose/grafana/provisioning:/etc/grafana/provisioning
+    comparisons:
+      image: strict
+      env: strict

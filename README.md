@@ -113,3 +113,24 @@ Observability --> Traces : Distributed Tracing
    * ***Redis***: Low-latency cache for ephemeral data.
    * ***S3-compatible storage***: File/image storage (future feature).
    * ***Prometheus/VictoriaMetrics***: Metrics storage and querying.
+
+## Deployment
+
+```bash
+cd ansible
+
+# First time only
+ansible-galaxy collection install -r requirements.yml
+
+# Fill in secrets (api_token, grafana_admin_password)
+nano secrets.yml
+
+ansible-playbook playbook.yml
+```
+
+To redeploy a single service:
+```bash
+ansible-playbook playbook.yml --tags grafana
+```
+
+> **Note:** after adding or changing nginx configs in `soryu/site-enabled/`, rebuild the hiryu image before deploying: `make hiryu_build hiryu_push`

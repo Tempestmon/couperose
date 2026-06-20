@@ -1,0 +1,34 @@
+---
+- name: Ensure prometheus config directory exists
+  ansible.builtin.file:
+    path: "{{ prometheus_config_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Copy prometheus config
+  ansible.builtin.copy:
+    src: prometheus.yml
+    dest: "{{ prometheus_config_path }}/prometheus.yml"
+    mode: "0644"
+  notify: Restart prometheus
+
+- name: Pull prometheus image
+  community.docker.docker_image:
+    name: prom/prometheus
+    tag: "{{ prometheus_version }}"
+    source: pull
+
+- name: Run prometheus container
+  community.docker.docker_container:
+    name: prometheus
+    image: "prom/prometheus:{{ prometheus_version }}"
+    state: started
+    restart_policy: unless-stopped
+    networks:
+      - name: "{{ docker_network }}"
+    ports:
+      - "9090:9090"
+    volumes:
+      - "{{ prometheus_config_path }}/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
+    comparisons:
+      image: strict
