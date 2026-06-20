@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Run Ansible playbook
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          pip install --quiet ansible
+          ansible-galaxy collection install -r ansible/requirements.yml --quiet
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Create secrets.yml
+        run: |
+          cat > ansible/secrets.yml << EOF
+          ---
+          api_token: "${{ secrets.API_TOKEN }}"
+          grafana_admin_password: "${{ secrets.GRAFANA_ADMIN_PASSWORD }}"
+          EOF
+
+      - name: Run playbook
+        run: cd ansible && ansible-playbook playbook.yml
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ansible/secrets.yml ~/.ssh/id_rsa
