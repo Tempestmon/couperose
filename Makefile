@@ -7,7 +7,7 @@ PROMETHEUS_VERSION = "v3.1.0"
 
 # MESSENGER SECTION
 akagi_build:
-	docker build -t $(TENANT)/akagi:$(MESSENGER_VERSION) -f docker/Dockerfile.akagi .
+	docker build --platform linux/amd64 -t $(TENANT)/akagi:$(MESSENGER_VERSION) -f docker/Dockerfile.akagi .
 
 akagi_tag:
 	docker tag $(TENANT)/akagi:$(MESSENGER_VERSION) $(TENANT)/akagi:latest
@@ -20,7 +20,7 @@ akagi_run:
 
 # API SECTION
 kaga_build:
-	docker build -t $(TENANT)/kaga:$(API_VERSION) -f docker/Dockerfile.kaga .
+	docker build --platform linux/amd64 -t $(TENANT)/kaga:$(API_VERSION) -f docker/Dockerfile.kaga .
 
 kaga_tag:
 	docker tag $(TENANT)/kaga:$(API_VERSION) $(TENANT)/kaga:latest
@@ -33,7 +33,7 @@ kaga_run:
 
 # FRONTEND SECTION
 hiryu_build:
-	docker build -t $(TENANT)/hiryu:$(FRONTEND_VERSION) -f docker/Dockerfile.hiryu .
+	docker build --platform linux/amd64 -t $(TENANT)/hiryu:$(FRONTEND_VERSION) -f docker/Dockerfile.hiryu .
 
 hiryu_tag:
 	docker tag $(TENANT)/hiryu:$(FRONTEND_VERSION) $(TENANT)/hiryu:latest
