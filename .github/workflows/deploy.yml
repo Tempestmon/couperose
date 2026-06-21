@@ -15,7 +15,7 @@ jobs:
       - name: Install Ansible
         run: |
           pip install --quiet ansible
-          ansible-galaxy collection install -r ansible/requirements.yml --quiet
+          ansible-galaxy collection install -r ansible/requirements.yml
 
       - name: Set up SSH key
         run: |
