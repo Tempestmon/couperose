@@ -27,16 +27,24 @@ function setNickname() {
   setInterval(loadMessages, 3000);
 }
 
+function formatTime(timestamp) {
+  if (!timestamp) return '';
+  return new Date(timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 function renderMessages(messages) {
   const wasAtBottom =
     messagesEl.scrollHeight - messagesEl.scrollTop <= messagesEl.clientHeight + 1;
 
   messagesEl.innerHTML = messages
     .map(
-      ({ sender, content }) => `
+      ({ sender, content, timestamp }) => `
     <div class="message">
-      <strong>${escapeHtml(sender)}:</strong>
-      ${escapeHtml(content)}
+      <div class="message-header">
+        <strong>${escapeHtml(sender)}</strong>
+        <span class="timestamp">${formatTime(timestamp)}</span>
+      </div>
+      <div class="message-content">${escapeHtml(content)}</div>
     </div>`
     )
     .join('');

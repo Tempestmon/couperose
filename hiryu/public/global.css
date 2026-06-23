@@ -260,9 +260,25 @@ button:disabled {
   box-shadow: 0 0 10px rgba(94, 129, 245, 0.5);
 }
 
-.message strong {
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.message-header strong {
   color: #edf37e;
   text-shadow: 0 0 5px #5e81f5;
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: rgba(138, 235, 241, 0.5);
+}
+
+.message-content {
+  color: #8aebf1;
 }
 
 .input-area {
