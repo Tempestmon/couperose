@@ -7,34 +7,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Images
+  build-akagi:
+    name: Build and Push akagi
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - run: make akagi_build && make akagi_tag && make akagi_push
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+  build-kaga:
+    name: Build and Push kaga
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - run: make kaga_build && make kaga_tag && make kaga_push
 
-    - name: Build and Push akagi Image
-      run: |
-        make akagi_build
-        make akagi_tag
-        make akagi_push
-
-    - name: Build and Push kaga Image
-      run: |
-        make kaga_build
-        make kaga_tag
-        make kaga_push
-
-    - name: Build and Push hiryu Image
-      run: |
-        make hiryu_build
-        make hiryu_tag
-        make hiryu_push
+  build-hiryu:
+    name: Build and Push hiryu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - run: make hiryu_build && make hiryu_tag && make hiryu_push
