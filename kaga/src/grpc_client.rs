@@ -1,12 +1,13 @@
 use crate::messenger::messenger_client::MessengerClient;
 use std::{env, sync::Arc};
-use tokio::sync::Mutex;
+use tokio::sync::{broadcast, Mutex};
 use tonic::transport::Channel;
 use tracing::info;
 
 #[derive(Clone)]
 pub struct AppState {
     pub grpc_clients: Arc<Mutex<Vec<MessengerClient<Channel>>>>,
+    pub broadcast_tx: broadcast::Sender<String>,
 }
 
 pub async fn create_grpc_client() -> MessengerClient<Channel> {

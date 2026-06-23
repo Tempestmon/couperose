@@ -1,39 +1,19 @@
 use crate::proto::{
-    messenger_server::Messenger, GetMessagesRequest, GetMessagesResponse, SendMessageRequest,
-    SendMessageResponse,
+    messenger_server::Messenger, GetMessagesRequest, GetMessagesResponse,
+    Message as ProtoMessage, SendMessageRequest, SendMessageResponse,
 };
-use serde::{Deserialize, Serialize};
-use tokio::fs;
+use rusqlite::{params, Connection};
+use std::sync::{Arc, Mutex};
 use tonic::async_trait;
 use tracing::info;
 
-#[derive(Debug, Default)]
-pub struct MessengerService {}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Message {
-    sender: String,
-    content: String,
-    timestamp: i64,
+pub struct MessengerService {
+    db: Arc<Mutex<Connection>>,
 }
 
-impl Message {
-    fn new(sender: String, content: String) -> Message {
-        let timestamp = std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs() as i64;
-        Message { sender, content, timestamp }
-    }
-}
-
-impl From<Message> for crate::proto::Message {
-    fn from(msg: Message) -> Self {
-        crate::proto::Message {
-            sender: msg.sender,
-            content: msg.content,
-            timestamp: msg.timestamp,
-        }
+impl MessengerService {
+    pub fn new(db: Arc<Mutex<Connection>>) -> Self {
+        Self { db }
     }
 }
 
@@ -42,66 +22,60 @@ impl Messenger for MessengerService {
     async fn send_message(
         &self,
         request: tonic::Request<SendMessageRequest>,
-    ) -> std::result::Result<tonic::Response<SendMessageResponse>, tonic::Status> {
-        send_message(request).await
+    ) -> Result<tonic::Response<SendMessageResponse>, tonic::Status> {
+        let input = request.get_ref();
+        let sender = input.sender.clone();
+        let content = input.content.clone();
+        let timestamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs() as i64;
+
+        info!("Got message from {}", sender);
+
+        let db = Arc::clone(&self.db);
+        tokio::task::spawn_blocking(move || {
+            let conn = db.lock().unwrap();
+            conn.execute(
+                "INSERT INTO messages (sender, content, timestamp) VALUES (?1, ?2, ?3)",
+                params![sender, content, timestamp],
+            )
+        })
+        .await
+        .map_err(|e| tonic::Status::internal(e.to_string()))?
+        .map_err(|e| tonic::Status::internal(e.to_string()))?;
+
+        Ok(tonic::Response::new(SendMessageResponse { success: true }))
     }
 
     async fn get_messages(
         &self,
         _request: tonic::Request<GetMessagesRequest>,
-    ) -> std::result::Result<tonic::Response<GetMessagesResponse>, tonic::Status> {
-        get_messages().await
+    ) -> Result<tonic::Response<GetMessagesResponse>, tonic::Status> {
+        info!("Got request to get messages");
+
+        let db = Arc::clone(&self.db);
+        let messages = tokio::task::spawn_blocking(move || {
+            let conn = db.lock().unwrap();
+            let mut stmt = conn.prepare(
+                "SELECT sender, content, timestamp FROM messages ORDER BY timestamp ASC",
+            )?;
+            let messages: Vec<ProtoMessage> = stmt
+                .query_map([], |row: &rusqlite::Row| {
+                    Ok(ProtoMessage {
+                        sender: row.get(0)?,
+                        content: row.get(1)?,
+                        timestamp: row.get(2)?,
+                    })
+                })?
+                .filter_map(|r| r.ok())
+                .collect();
+            rusqlite::Result::Ok(messages)
+        })
+        .await
+        .map_err(|e| tonic::Status::internal(e.to_string()))?
+        .map_err(|e: rusqlite::Error| tonic::Status::internal(e.to_string()))?;
+
+        Ok(tonic::Response::new(GetMessagesResponse { messages }))
     }
-}
-
-async fn get_messages() -> Result<tonic::Response<GetMessagesResponse>, tonic::Status> {
-    info!("Got request to get messages");
-
-    let path = "messages.json";
-    let data = fs::read_to_string(path)
-        .await
-        .expect("Couldn't read data to string");
-    let messages: Vec<Message> = if data.trim().is_empty() {
-        Vec::new()
-    } else {
-        serde_json::from_str(&data).expect("Couldn't parse from string")
-    };
-
-    let messages: Vec<crate::proto::Message> = messages.into_iter().map(|msg| msg.into()).collect();
-
-    let response = GetMessagesResponse { messages };
-    Ok(tonic::Response::new(response))
-}
-
-async fn send_message(
-    request: tonic::Request<SendMessageRequest>,
-) -> Result<tonic::Response<SendMessageResponse>, tonic::Status> {
-    let input = request.get_ref();
-    let path = "messages.json";
-
-    info!("Got request from {}", input.sender);
-
-    let response = SendMessageResponse { success: true };
-
-    let mut file = std::fs::OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(path)
-        .expect("Couldn't open file");
-    let data = fs::read_to_string(path)
-        .await
-        .expect("Couldn't read data to string");
-    let mut messages: Vec<Message> = if data.trim().is_empty() {
-        Vec::new()
-    } else {
-        serde_json::from_str(&data).expect("Couldn't parse from string")
-    };
-    let message = Message::new(input.sender.clone(), input.content.clone());
-    messages.push(message);
-    serde_json::to_writer_pretty(&mut file, &messages)
-        .expect("Couldn't write messages to json file");
-
-    Ok(tonic::Response::new(response))
 }

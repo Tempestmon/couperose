@@ -1,4 +1,7 @@
 const API_BASE = window.location.origin + '/api';
+const WS_URL = (window.location.protocol === 'https:' ? 'wss:' : 'ws:')
+  + '//' + window.location.host + '/api/ws';
+
 let nickname = '';
 
 const welcomeEl = document.getElementById('welcome');
@@ -17,6 +20,27 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
+function formatTime(timestamp) {
+  if (!timestamp) return '';
+  return new Date(timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function buildMessageEl({ sender, content, timestamp }) {
+  const div = document.createElement('div');
+  div.className = 'message';
+  div.innerHTML = `
+    <div class="message-header">
+      <strong>${escapeHtml(sender)}</strong>
+      <span class="timestamp">${formatTime(timestamp)}</span>
+    </div>
+    <div class="message-content">${escapeHtml(content)}</div>`;
+  return div;
+}
+
+function scrollToBottom() {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
 function setNickname() {
   const value = nicknameInput.value.trim();
   if (!value) return;
@@ -24,49 +48,44 @@ function setNickname() {
   welcomeEl.hidden = true;
   chatEl.hidden = false;
   loadMessages();
-  setInterval(loadMessages, 3000);
-}
-
-function formatTime(timestamp) {
-  if (!timestamp) return '';
-  return new Date(timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function renderMessages(messages) {
-  const wasAtBottom =
-    messagesEl.scrollHeight - messagesEl.scrollTop <= messagesEl.clientHeight + 1;
-
-  messagesEl.innerHTML = messages
-    .map(
-      ({ sender, content, timestamp }) => `
-    <div class="message">
-      <div class="message-header">
-        <strong>${escapeHtml(sender)}</strong>
-        <span class="timestamp">${formatTime(timestamp)}</span>
-      </div>
-      <div class="message-content">${escapeHtml(content)}</div>
-    </div>`
-    )
-    .join('');
-
-  if (wasAtBottom) {
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
+  connectWebSocket();
 }
 
 async function loadMessages() {
   try {
     const res = await fetch(`${API_BASE}/messages`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    renderMessages(await res.json());
+    const messages = await res.json();
+    messagesEl.innerHTML = '';
+    messages.forEach((msg) => messagesEl.appendChild(buildMessageEl(msg)));
+    scrollToBottom();
   } catch (err) {
     console.error('Failed to load messages:', err);
   }
 }
 
+function connectWebSocket() {
+  const ws = new WebSocket(WS_URL);
+
+  ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    messagesEl.appendChild(buildMessageEl(msg));
+    scrollToBottom();
+  };
+
+  ws.onclose = () => {
+    setTimeout(connectWebSocket, 3000);
+  };
+
+  ws.onerror = (err) => {
+    console.error('WebSocket error:', err);
+  };
+}
+
 async function handleSend() {
   const content = messageInput.value.trim();
   if (!content) return;
+  messageInput.value = '';
   try {
     const res = await fetch(`${API_BASE}/message`, {
       method: 'POST',
@@ -74,8 +93,6 @@ async function handleSend() {
       body: JSON.stringify({ sender: nickname, recipient: 'Everyone', content }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
-    messageInput.value = '';
-    await loadMessages();
   } catch (err) {
     console.error('Failed to send message:', err);
     alert(`Failed to send message: ${err.message}`);

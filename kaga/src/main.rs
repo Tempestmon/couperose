@@ -7,7 +7,9 @@ use actix_web_prometheus::PrometheusMetricsBuilder;
 use grpc_client::{initialize_grpc_pool, AppState};
 use methods::get::get_messages;
 use methods::send::send_message;
+use methods::ws::ws_handler;
 use std::env;
+use tokio::sync::broadcast;
 use tracing::info;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
@@ -34,22 +36,27 @@ pub struct ApiDoc;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let subscriber = tracing_subscriber::fmt().with_target(false).finish();
-
     tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber.");
+
     let openapi = ApiDoc::openapi();
     let grpc_clients = initialize_grpc_pool(5).await;
+    let (broadcast_tx, _) = broadcast::channel::<String>(100);
     let app_state = AppState {
         grpc_clients: grpc_clients.clone(),
+        broadcast_tx: broadcast_tx.clone(),
     };
     let host = env::var("API_HOST").expect("Couldn't get API_HOST env");
     let port = env::var("API_PORT").expect("Couldn't get API_PORT env");
     let url = format!("{}:{}", host, port);
     let allowed_url = env::var("CORS_URL").expect("Couldnt get CORS_URL env");
+
     info!("Starting http server {}", url);
+
     let prometheus = PrometheusMetricsBuilder::new("api")
         .endpoint("/metrics")
         .build()
         .unwrap();
+
     HttpServer::new(move || {
         App::new()
             .wrap(
@@ -63,6 +70,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(app_state.clone()))
             .service(send_message)
             .service(get_messages)
+            .service(ws_handler)
             .service(
                 SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-docs/openapi.json", openapi.clone()),
             )
