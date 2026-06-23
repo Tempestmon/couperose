@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset='utf-8'>
-	<meta name='viewport' content='width=device-width,initial-scale=1'>
-
-	<title>Svelte app</title>
-
-	<link rel='icon' type='image/png' href='/favicon.png'>
-	<link rel='stylesheet' href='/global.css'>
-	<link rel='stylesheet' href='/build/bundle.css'>
-
-	<script defer src='/build/bundle.js'></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Messenger</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/global.css">
 </head>
-
 <body>
+  <div id="welcome">
+    <h1 class="neon-glow">Welcome to Messenger</h1>
+    <input type="text" id="nickname-input" placeholder="Enter your nickname">
+    <button id="enter-btn">Enter Chat</button>
+  </div>
+
+  <div id="chat" hidden>
+    <h2>Chat</h2>
+    <div id="messages"></div>
+    <div class="input-area">
+      <input type="text" id="message-input" placeholder="Write a message...">
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
 </body>
 </html>

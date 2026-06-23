@@ -208,6 +208,73 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Welcome Screen */
+#welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100px;
+}
+
+#welcome h1 {
+  font-family: 'Orbitron', sans-serif;
+  color: #5e81f5;
+  font-size: 2.5em;
+  text-shadow: 0 0 5px #8aebf1, 0 0 10px #5e81f5, 0 0 20px #edf37e;
+  animation: glitch 2s linear infinite;
+  margin-bottom: 20px;
+}
+
+/* Chat */
+#chat {
+  margin: 20px;
+}
+
+#chat h2 {
+  font-family: 'Orbitron', sans-serif;
+  color: #5e81f5;
+}
+
+#messages {
+  border: 2px solid #8aebf1;
+  padding: 15px;
+  height: 300px;
+  overflow-y: scroll;
+  margin-bottom: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(94, 129, 245, 0.3);
+}
+
+.message {
+  margin: 8px 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-left: 3px solid #8aebf1;
+  color: #8aebf1;
+  font-size: 1em;
+  transition: all 0.3s ease;
+}
+
+.message:hover {
+  box-shadow: 0 0 10px rgba(94, 129, 245, 0.5);
+}
+
+.message strong {
+  color: #edf37e;
+  text-shadow: 0 0 5px #5e81f5;
+}
+
+.input-area {
+  display: flex;
+  gap: 10px;
+}
+
+.input-area input {
+  flex: 1;
+  margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   header h1 {
