@@ -42,6 +42,7 @@ function scrollToBottom() {
 }
 
 function setNickname() {
+  if (nickname) return;
   const value = nicknameInput.value.trim();
   if (!value) return;
   nickname = value;
