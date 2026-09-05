@@ -6,6 +6,12 @@
     source: pull
     force_source: true
 
+- name: Remove stale akagi container if present
+  community.docker.docker_container:
+    name: akagi
+    state: absent
+    force_kill: true
+
 - name: Run akagi container
   community.docker.docker_container:
     name: akagi

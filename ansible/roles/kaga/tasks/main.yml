@@ -6,6 +6,12 @@
     source: pull
     force_source: true
 
+- name: Remove stale kaga container if present
+  community.docker.docker_container:
+    name: kaga
+    state: absent
+    force_kill: true
+
 - name: Run kaga container
   community.docker.docker_container:
     name: kaga

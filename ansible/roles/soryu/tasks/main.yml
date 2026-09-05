@@ -16,6 +16,12 @@
 # start-nginx.sh runs envsubst to inject API_TOKEN into nginx.conf templates,
 # then starts nginx. Let's Encrypt certs are mounted read-only from the host
 # (obtained by the certbot role which must run first).
+- name: Remove stale hiryu container if present
+  community.docker.docker_container:
+    name: hiryu
+    state: absent
+    force_kill: true
+
 - name: Run hiryu container (nginx + frontend)
   community.docker.docker_container:
     name: hiryu
